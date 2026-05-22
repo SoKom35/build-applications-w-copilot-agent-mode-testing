@@ -70,6 +70,15 @@ jobs:
           echo "=== File content ==="
           cat octofit-tracker/backend/package.json || echo "Cannot read file"
 
+      - name: Debug - Check keyphrase with grep
+        run: |
+          echo "=== Checking for React with grep ==="
+          grep -i "react" octofit-tracker/frontend/package.json && echo "React found" || echo "React not found"
+          echo "=== Checking for Express with grep ==="
+          grep -i "express" octofit-tracker/backend/package.json && echo "Express found" || echo "Express not found"
+          echo "=== Checking for Mongoose with grep ==="
+          grep -i "mongoose" octofit-tracker/backend/package.json && echo "Mongoose found" || echo "Mongoose not found"
+
       - name: Check React 19 dependency
         id: check-react-19
         continue-on-error: true
