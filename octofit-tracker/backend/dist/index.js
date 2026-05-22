@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import { connectToDatabase } from './config/database.js';
 import usersRouter from './routes/users.js';
 import teamsRouter from './routes/teams.js';
 import activitiesRouter from './routes/activities.js';
@@ -7,7 +8,6 @@ import leaderboardRouter from './routes/leaderboard.js';
 import workoutsRouter from './routes/workouts.js';
 const app = express();
 const PORT = Number(process.env.PORT || 8000);
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/octofit_db';
 // Middleware
 app.use(express.json());
 // Helper function to get API URL
@@ -47,14 +47,13 @@ app.get('/health', (req, res) => {
     res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 // Connect to MongoDB and start server
-mongoose
-    .connect(MONGO_URI)
+connectToDatabase()
     .then(() => {
+    const apiUrl = getApiUrl();
     app.listen(PORT, '0.0.0.0', () => {
-        const apiUrl = getApiUrl();
         console.log(`✓ Server listening on port ${PORT}`);
         console.log(`✓ API URL: ${apiUrl}`);
-        console.log(`✓ MongoDB connected to ${MONGO_URI}`);
+        console.log(`✓ MongoDB connected to octofit_db`);
         console.log(`✓ Available endpoints:`);
         console.log(`  - GET  ${apiUrl}/`);
         console.log(`  - GET  ${apiUrl}/health`);

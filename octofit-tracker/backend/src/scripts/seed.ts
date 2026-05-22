@@ -1,8 +1,14 @@
 import mongoose from 'mongoose';
-import { User } from './models/User.js';
-import { Team } from './models/Team.js';
-import { Activity } from './models/Activity.js';
-import { Workout } from './models/Workout.js';
+import { User } from '../models/User.js';
+import { Team } from '../models/Team.js';
+import { Activity } from '../models/Activity.js';
+import { Workout } from '../models/Workout.js';
+
+/**
+ * Seed the octofit_db database with test data
+ * This script creates sample users, teams, activities, and workouts
+ * for testing and development purposes
+ */
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/octofit_db';
 
