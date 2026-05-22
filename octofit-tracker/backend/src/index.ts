@@ -15,13 +15,14 @@ const PORT = Number(process.env.PORT || 8000);
 app.use(express.json());
 
 // Helper function to get API URL
+// Supports Codespaces with $CODESPACE_NAME and localhost fallback
 function getApiUrl(): string {
+  // When running in GitHub Codespaces, use the Codespaces domain
+  // Format: https://{CODESPACE_NAME}-8000.app.github.dev
   if (process.env.CODESPACE_NAME) {
     return `https://${process.env.CODESPACE_NAME}-8000.app.github.dev`;
   }
-  if (process.env.GITHUB_CODESPACES === 'true') {
-    return `https://${process.env.CODESPACE_NAME}-8000.app.github.dev`;
-  }
+  // Fallback to localhost for local development
   return `http://localhost:${PORT}`;
 }
 
