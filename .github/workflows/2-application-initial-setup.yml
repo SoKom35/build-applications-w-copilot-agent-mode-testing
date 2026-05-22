@@ -70,44 +70,38 @@ jobs:
           echo "=== File content ==="
           cat octofit-tracker/backend/package.json || echo "Cannot read file"
 
-      - name: Debug - Check keyphrase with grep
-        run: |
-          echo "=== Checking for React with grep ==="
-          grep -i "react" octofit-tracker/frontend/package.json && echo "React found" || echo "React not found"
-          echo "=== Checking for Express with grep ==="
-          grep -i "express" octofit-tracker/backend/package.json && echo "Express found" || echo "Express not found"
-          echo "=== Checking for Mongoose with grep ==="
-          grep -i "mongoose" octofit-tracker/backend/package.json && echo "Mongoose found" || echo "Mongoose not found"
-
       - name: Check React 19 dependency
         id: check-react-19
-        continue-on-error: true
-        uses: skills/action-keyphrase-checker@v2.0.0
-        with:
-          text-file: octofit-tracker/frontend/package.json
-          keyphrase: '"react": "^19'
-          minimum-occurrences: 1
-          case-sensitive: false
+        run: |
+          if grep -q '"react": "^19' octofit-tracker/frontend/package.json; then
+            echo "React 19 dependency found"
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "React 19 dependency not found"
+            exit 1
+          fi
 
       - name: Check Express dependency
         id: check-express
-        continue-on-error: true
-        uses: skills/action-keyphrase-checker@v2.0.0
-        with:
-          text-file: octofit-tracker/backend/package.json
-          keyphrase: '"express"'
-          minimum-occurrences: 1
-          case-sensitive: false
+        run: |
+          if grep -q '"express"' octofit-tracker/backend/package.json; then
+            echo "Express dependency found"
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "Express dependency not found"
+            exit 1
+          fi
 
       - name: Check Mongoose dependency
         id: check-mongoose
-        continue-on-error: true
-        uses: skills/action-keyphrase-checker@v2.0.0
-        with:
-          text-file: octofit-tracker/backend/package.json
-          keyphrase: '"mongoose"'
-          minimum-occurrences: 1
-          case-sensitive: false
+        run: |
+          if grep -q '"mongoose"' octofit-tracker/backend/package.json; then
+            echo "Mongoose dependency found"
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "Mongoose dependency not found"
+            exit 1
+          fi
 
       - name: Update comment - step results
         uses: GrantBirki/comment@v2.1.1
