@@ -59,6 +59,17 @@ jobs:
 
       # START: Check practical exercise
 
+      - name: Debug - Check files exist
+        run: |
+          echo "=== Checking frontend package.json ==="
+          ls -la octofit-tracker/frontend/package.json || echo "File not found"
+          echo "=== File content ==="
+          cat octofit-tracker/frontend/package.json || echo "Cannot read file"
+          echo "=== Checking backend package.json ==="
+          ls -la octofit-tracker/backend/package.json || echo "File not found"
+          echo "=== File content ==="
+          cat octofit-tracker/backend/package.json || echo "Cannot read file"
+
       - name: Check React 19 dependency
         id: check-react-19
         continue-on-error: true
