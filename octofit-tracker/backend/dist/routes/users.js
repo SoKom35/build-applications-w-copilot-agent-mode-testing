@@ -1,22 +1,74 @@
 import { Router } from 'express';
+import { User } from '../models/User.js';
 const router = Router();
-router.get('/', (req, res) => {
-    res.json({ message: 'Get all users', endpoint: '/api/users/' });
+// Get all users
+router.get('/', async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
 });
-router.post('/', (req, res) => {
-    res.json({ message: 'Create a new user', endpoint: '/api/users/' });
+// Create a new user
+router.post('/', async (req, res) => {
+    try {
+        const { name, email, username } = req.body;
+        if (!name || !email || !username) {
+            res.status(400).json({ error: 'Missing required fields: name, email, username' });
+            return;
+        }
+        const user = new User({ name, email, username });
+        await user.save();
+        res.status(201).json(user);
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 });
-router.get('/:id', (req, res) => {
-    const { id } = req.params;
-    res.json({ message: `Get user ${id}`, endpoint: `/api/users/${id}` });
+// Get a specific user
+router.get('/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+        res.json(user);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to fetch user' });
+    }
 });
-router.put('/:id', (req, res) => {
-    const { id } = req.params;
-    res.json({ message: `Update user ${id}`, endpoint: `/api/users/${id}` });
+// Update a user
+router.put('/:id', async (req, res) => {
+    try {
+        const { name, email, username } = req.body;
+        const user = await User.findByIdAndUpdate(req.params.id, { name, email, username }, { new: true, runValidators: true });
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+        res.json(user);
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 });
-router.delete('/:id', (req, res) => {
-    const { id } = req.params;
-    res.json({ message: `Delete user ${id}`, endpoint: `/api/users/${id}` });
+// Delete a user
+router.delete('/:id', async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+        res.json({ message: 'User deleted', user });
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to delete user' });
+    }
 });
 export default router;
 //# sourceMappingURL=users.js.map

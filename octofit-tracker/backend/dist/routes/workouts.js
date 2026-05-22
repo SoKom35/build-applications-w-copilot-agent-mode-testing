@@ -1,22 +1,83 @@
 import { Router } from 'express';
+import { Workout } from '../models/Workout.js';
 const router = Router();
-router.get('/', (req, res) => {
-    res.json({ message: 'Get all workout suggestions', endpoint: '/api/workouts/' });
+// Get all workouts
+router.get('/', async (req, res) => {
+    try {
+        const workouts = await Workout.find().populate('userId');
+        res.json(workouts);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to fetch workouts' });
+    }
 });
-router.post('/', (req, res) => {
-    res.json({ message: 'Create personalized workout suggestion', endpoint: '/api/workouts/' });
+// Create a personalized workout suggestion
+router.post('/', async (req, res) => {
+    try {
+        const { userId, name, description, difficulty, duration, targetCalories, exercises } = req.body;
+        if (!userId || !name || !duration || targetCalories === undefined) {
+            res.status(400).json({ error: 'Missing required fields: userId, name, duration, targetCalories' });
+            return;
+        }
+        const workout = new Workout({
+            userId,
+            name,
+            description,
+            difficulty: difficulty || 'beginner',
+            duration,
+            targetCalories,
+            exercises: exercises || [],
+        });
+        await workout.save();
+        await workout.populate('userId');
+        res.status(201).json(workout);
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 });
-router.get('/:id', (req, res) => {
-    const { id } = req.params;
-    res.json({ message: `Get workout ${id}`, endpoint: `/api/workouts/${id}` });
+// Get a specific workout
+router.get('/:id', async (req, res) => {
+    try {
+        const workout = await Workout.findById(req.params.id).populate('userId');
+        if (!workout) {
+            res.status(404).json({ error: 'Workout not found' });
+            return;
+        }
+        res.json(workout);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to fetch workout' });
+    }
 });
-router.put('/:id', (req, res) => {
-    const { id } = req.params;
-    res.json({ message: `Update workout ${id}`, endpoint: `/api/workouts/${id}` });
+// Update a workout
+router.put('/:id', async (req, res) => {
+    try {
+        const { name, description, difficulty, duration, targetCalories, exercises } = req.body;
+        const workout = await Workout.findByIdAndUpdate(req.params.id, { name, description, difficulty, duration, targetCalories, exercises }, { new: true, runValidators: true }).populate('userId');
+        if (!workout) {
+            res.status(404).json({ error: 'Workout not found' });
+            return;
+        }
+        res.json(workout);
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 });
-router.delete('/:id', (req, res) => {
-    const { id } = req.params;
-    res.json({ message: `Delete workout ${id}`, endpoint: `/api/workouts/${id}` });
+// Delete a workout
+router.delete('/:id', async (req, res) => {
+    try {
+        const workout = await Workout.findByIdAndDelete(req.params.id);
+        if (!workout) {
+            res.status(404).json({ error: 'Workout not found' });
+            return;
+        }
+        res.json({ message: 'Workout deleted', workout });
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to delete workout' });
+    }
 });
 export default router;
 //# sourceMappingURL=workouts.js.map

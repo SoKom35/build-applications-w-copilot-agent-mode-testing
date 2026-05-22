@@ -1,22 +1,75 @@
 import { Router } from 'express';
+import { Activity } from '../models/Activity.js';
 const router = Router();
-router.get('/', (req, res) => {
-    res.json({ message: 'Get all activities', endpoint: '/api/activities/' });
+// Get all activities
+router.get('/', async (req, res) => {
+    try {
+        const activities = await Activity.find().populate('userId');
+        res.json(activities);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to fetch activities' });
+    }
 });
-router.post('/', (req, res) => {
-    res.json({ message: 'Log a new activity', endpoint: '/api/activities/' });
+// Log a new activity
+router.post('/', async (req, res) => {
+    try {
+        const { userId, type, description, duration, calories, date } = req.body;
+        if (!userId || !type || !duration || calories === undefined) {
+            res.status(400).json({ error: 'Missing required fields: userId, type, duration, calories' });
+            return;
+        }
+        const activity = new Activity({ userId, type, description, duration, calories, date });
+        await activity.save();
+        await activity.populate('userId');
+        res.status(201).json(activity);
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 });
-router.get('/:id', (req, res) => {
-    const { id } = req.params;
-    res.json({ message: `Get activity ${id}`, endpoint: `/api/activities/${id}` });
+// Get a specific activity
+router.get('/:id', async (req, res) => {
+    try {
+        const activity = await Activity.findById(req.params.id).populate('userId');
+        if (!activity) {
+            res.status(404).json({ error: 'Activity not found' });
+            return;
+        }
+        res.json(activity);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to fetch activity' });
+    }
 });
-router.put('/:id', (req, res) => {
-    const { id } = req.params;
-    res.json({ message: `Update activity ${id}`, endpoint: `/api/activities/${id}` });
+// Update an activity
+router.put('/:id', async (req, res) => {
+    try {
+        const { type, description, duration, calories, date } = req.body;
+        const activity = await Activity.findByIdAndUpdate(req.params.id, { type, description, duration, calories, date }, { new: true, runValidators: true }).populate('userId');
+        if (!activity) {
+            res.status(404).json({ error: 'Activity not found' });
+            return;
+        }
+        res.json(activity);
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 });
-router.delete('/:id', (req, res) => {
-    const { id } = req.params;
-    res.json({ message: `Delete activity ${id}`, endpoint: `/api/activities/${id}` });
+// Delete an activity
+router.delete('/:id', async (req, res) => {
+    try {
+        const activity = await Activity.findByIdAndDelete(req.params.id);
+        if (!activity) {
+            res.status(404).json({ error: 'Activity not found' });
+            return;
+        }
+        res.json({ message: 'Activity deleted', activity });
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to delete activity' });
+    }
 });
 export default router;
 //# sourceMappingURL=activities.js.map
