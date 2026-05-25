@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { getApiUrl } from '../api'
+
+// API Endpoint
+const LEADERBOARD_ENDPOINT = 'https://{CODESPACE_NAME}-8000.app.github.dev/api/leaderboard'
 
 function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState([])
@@ -9,8 +11,12 @@ function Leaderboard() {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const apiUrl = getApiUrl()
-        const response = await fetch(`${apiUrl}/api/leaderboard`)
+        // API Endpoint: https://{CODESPACE_NAME}-8000.app.github.dev/api/leaderboard
+        const codespaceName = import.meta.env.VITE_CODESPACE_NAME
+        const apiUrl = codespaceName 
+          ? `https://${codespaceName}-8000.app.github.dev/api/leaderboard`
+          : `http://localhost:8000/api/leaderboard`
+        const response = await fetch(apiUrl)
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

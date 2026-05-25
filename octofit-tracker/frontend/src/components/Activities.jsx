@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { getApiUrl } from '../api'
+
+// API Endpoint
+const ACTIVITIES_ENDPOINT = 'https://{CODESPACE_NAME}-8000.app.github.dev/api/activities'
 
 function Activities() {
   const [activities, setActivities] = useState([])
@@ -9,8 +11,12 @@ function Activities() {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const apiUrl = getApiUrl()
-        const response = await fetch(`${apiUrl}/api/activities`)
+        // API Endpoint: https://{CODESPACE_NAME}-8000.app.github.dev/api/activities
+        const codespaceName = import.meta.env.VITE_CODESPACE_NAME
+        const apiUrl = codespaceName 
+          ? `https://${codespaceName}-8000.app.github.dev/api/activities`
+          : `http://localhost:8000/api/activities`
+        const response = await fetch(apiUrl)
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

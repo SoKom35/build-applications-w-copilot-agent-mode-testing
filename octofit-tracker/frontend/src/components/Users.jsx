@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { getApiUrl } from '../api'
+
+// API Endpoint
+const USERS_ENDPOINT = 'https://{CODESPACE_NAME}-8000.app.github.dev/api/users'
 
 function Users() {
   const [users, setUsers] = useState([])
@@ -9,8 +11,12 @@ function Users() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const apiUrl = getApiUrl()
-        const response = await fetch(`${apiUrl}/api/users`)
+        // API Endpoint: https://{CODESPACE_NAME}-8000.app.github.dev/api/users
+        const codespaceName = import.meta.env.VITE_CODESPACE_NAME
+        const apiUrl = codespaceName 
+          ? `https://${codespaceName}-8000.app.github.dev/api/users`
+          : `http://localhost:8000/api/users`
+        const response = await fetch(apiUrl)
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
